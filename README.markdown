@@ -23,7 +23,7 @@ Embed a template before other tag parsing, so you can re-use templates more easi
 	{exp:channel:entries channel="your_channel"}
 		{pre_embed="site/something"}
 	{/exp:channel:entries}
-	{exp:pre_embed parse="embed"}
+	{/exp:pre_embed}
 
 	{!--embed--}
 	<p>{title}: {your_custom_field}</p>

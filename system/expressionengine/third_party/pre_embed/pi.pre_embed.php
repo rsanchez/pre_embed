@@ -76,28 +76,28 @@ class Pre_embed
 	{
 		ob_start(); 
 ?>
-## The old way.
+### The old way.
 	{!--template--}
 	{exp:channel:entries channel="your_channel"}
-		{pre_embed="site/embed" title="{title}" your_custom_field="{your_custom_field}"}
+		{embed="site/embed" title="{title}" your_custom_field="{your_custom_field}"}
 	{/exp:channel:entries}
 
 	{!--embed--}
 	<p>{embed:title}: {embed:your_custom_field}</p>
 
 
-## The new way.
+### The new way.
 	{!--template--}
-	{exp:pre_embed parse="inward"}
+	{exp:pre_embed parse="inward"}{!--yes, parse="inward" is necessary--}
 	{exp:channel:entries channel="your_channel"}
-		{embed="site/something"}
+		{pre_embed="site/something"}
 	{/exp:channel:entries}
 	{exp:pre_embed parse="embed"}
 
 	{!--embed--}
 	<p>{title}: {your_custom_field}</p>
 
-## Tada!
+### Tada!
 Now you can re-use the same embed more easily.
 <?php
 		$buffer = ob_get_contents();

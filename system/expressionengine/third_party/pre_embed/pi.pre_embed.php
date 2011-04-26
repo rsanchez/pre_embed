@@ -69,6 +69,11 @@ class Pre_embed
 			}
 		}
 		
+		foreach ($this->EE->config->_global_vars as $key => $value)
+		{
+			$embed = $this->EE->TMPL->swap_var_single($key, $value, $embed);
+		}
+		
 		return $embed;
 	}
 	

@@ -2,7 +2,7 @@
 
 $plugin_info = array(
 	'pi_name' => 'Pre Embed',
-	'pi_version' => '1.0.0',
+	'pi_version' => '1.0.1',
 	'pi_author' => 'Rob Sanchez',
 	'pi_author_url' => 'http://github.com/rsanchez',
 	'pi_description' => 'Embed a template before other tag parsing, so you can re-use templates more easily.',

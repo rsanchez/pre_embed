@@ -43,7 +43,7 @@ class Pre_embed
 		
 		$template_name = (isset($template[1])) ? $template[1] : 'index';
 		
-		$query = $this->EE->db->select('template_data')
+		$query = $this->EE->db->select('template_data, save_template_file, template_name, template_groups.group_name, template_type')
 				      ->where('group_name', $group_name)
 				      ->where('template_name', $template_name)
 				      ->join('template_groups', 'template_groups.group_id = templates.group_id')
@@ -54,8 +54,27 @@ class Pre_embed
 			return '';
 		}
 		
-		$embed = $query->row('template_data');
+		if ($this->EE->config->item('save_tmpl_files') == 'y' && $this->EE->config->item('tmpl_file_basepath') != '' && $query->row('save_template_file') == 'y')
+		{
+
+			$this->EE->load->library('api');
+			$this->EE->api->instantiate('template_structure');
+
+			$basepath = rtrim($this->EE->config->item('tmpl_file_basepath'), '/') . '/';
+			$basepath .= $this->EE->config->item('site_short_name') . '/' . $query->row('group_name') . '.group/' . $query->row('template_name') . $this->EE->api_template_structure->file_extensions($query->row('template_type'));
+
+			if (file_exists($basepath))
+            {
+				$embed = file_get_contents($basepath);
+            }
+
+		}
+		else
+		{
+			$embed = $query->row('template_data');
+		}
 		
+
 		//for some reason this was throwing errors, when I had template debugging on
 		if (@preg_match_all('/'.LD.'embed:.(*)'.RD.'/', $embed, $matches))
 		{

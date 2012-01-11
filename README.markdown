@@ -21,12 +21,12 @@ Embed a template before other tag parsing, so you can re-use templates more easi
 	{!--template--}
 	{exp:pre_embed parse="inward"}{!--yes, parse="inward" is necessary--}
 	{exp:channel:entries channel="your_channel"}
-		{pre_embed="site/something"}
+		{pre_embed="site/something" my_var="{segment_1}"}
 	{/exp:channel:entries}
 	{/exp:pre_embed}
 
 	{!--embed--}
-	<p>{title}: {your_custom_field}</p>
+	<p>{title}: {your_custom_field} {embed:my_var}</p>
 
 ### Tada!
 Now you can re-use the same embed more easily.

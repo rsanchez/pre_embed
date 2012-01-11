@@ -19,7 +19,7 @@ class Pre_embed
 		
 		$this->return_data = $this->EE->TMPL->tagdata;
 		
-		if (preg_match_all('/'.LD.'pre_embed\s*=\s*([\042\047]?)(.*)\\1(.*)'.RD.'/', $this->return_data, $matches))
+		if (preg_match_all('/'.LD.'pre_embed\s*=\s*([\042\047]?)([^\\1]*?)\\1(.*)'.RD.'/', $this->return_data, $matches))
 		{
 			foreach ($matches[0] as $i => $full_match)
 			{
@@ -71,7 +71,7 @@ class Pre_embed
 		}
 		
 		//for some reason this was throwing errors, when I had template debugging on
-		if (@preg_match_all('/'.LD.'embed:.(*)'.RD.'/', $embed, $matches))
+		if (@preg_match_all('/'.LD.'embed:(\w+)'.RD.'/', $embed, $matches))
 		{
 			foreach ($matches[0] as $i => $full_match)
 			{

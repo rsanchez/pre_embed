@@ -18,6 +18,8 @@ class Pre_embed
 		$this->EE =& get_instance();
 		
 		$this->return_data = $this->EE->TMPL->tagdata;
+
+		$this->extra = explode('|',$this->EE->TMPL->fetch_param('extra'));
 		
 		if (preg_match_all('/'.LD.'pre_embed\s*=\s*([\042\047]?)([^\\1]*?)\\1(.*)'.RD.'/', $this->return_data, $matches))
 		{
@@ -83,11 +85,48 @@ class Pre_embed
 			}
 		}
 		
+
+		// swap config global vars
 		foreach ($this->EE->config->_global_vars as $key => $value)
 		{
 			$embed = $this->EE->TMPL->swap_var_single($key, $value, $embed);
 		}
 		
+		// extra parsing: segments
+		if(in_array('segment', $this->extra))
+		{
+			for ($i = 1; $i < 10; $i++)
+			{
+				$embed = str_replace(LD.'segment_'.$i.RD, $this->EE->uri->segment($i), $embed);
+			}
+		}
+
+		// extra parsing: globals (expensive)
+		if(in_array('globals', $this->extra))
+		{
+			$embed = $this->EE->TMPL->parse_globals($embed);
+		}
+		else // extra parsing: only member vars instead of globals
+		if(in_array('member', $this->extra)) 
+		{
+			foreach(array(
+					'member_id', 'group_id', 'member_group', 'username', 'screen_name',
+					//'group_title', 'group_description', 
+					//'email', 'ip_address', 'location', 'total_entries', 
+					//'total_comments', 'private_messages', 'total_forum_posts', 
+					//'total_forum_topics', 'total_forum_replies'
+				) as $val)
+			{
+				if (isset($this->EE->session->userdata[$val]) AND ($val == 'group_description' OR strval($this->EE->session->userdata[$val]) != ''))
+				{
+					//$embed = str_replace(LD.$val.RD, $this->EE->session->userdata[$val], $embed);				 
+					//$embed = str_replace('{out_'.$val.'}', $this->EE->session->userdata[$val], $embed);
+					//$embed = str_replace('{global->'.$val.'}', $this->EE->session->userdata[$val], $embed);
+					$embed = str_replace('{logged_in_'.$val.'}', $this->EE->session->userdata[$val], $embed);
+				}
+			}	
+		}
+
 		return $embed;
 	}
 	
@@ -95,6 +134,9 @@ class Pre_embed
 	{
 		ob_start(); 
 ?>
+
+## See the included readme
+
 ### The old way.
 	{!--template--}
 	{exp:channel:entries channel="your_channel"}

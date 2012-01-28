@@ -85,6 +85,8 @@ class Pre_embed
 			}
 		}
 		
+		// strip comments
+		$embed = preg_replace("/\{!--.*?--\}/s", '', $embed);
 
 		// swap config global vars
 		foreach ($this->EE->config->_global_vars as $key => $value)

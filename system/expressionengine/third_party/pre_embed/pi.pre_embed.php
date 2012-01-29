@@ -21,7 +21,7 @@ class Pre_embed
 
 		$this->extra = explode('|',$this->EE->TMPL->fetch_param('extra'));
 		
-		if (preg_match_all('/'.LD.'pre_embed\s*=\s*([\042\047]?)([^\\1]*?)\\1(.*)'.RD.'/', $this->return_data, $matches))
+		if (preg_match_all('/'.LD.'pre_embed\s*=\s*([\042\047]?)([^\\1]*?)\\1(.*)'.RD.'/s', $this->return_data, $matches))
 		{
 			foreach ($matches[0] as $i => $full_match)
 			{

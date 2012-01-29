@@ -29,18 +29,15 @@ Embed a template before other tag parsing, so you can re-use templates more easi
 	<p>{title}: {your_custom_field} {embed:my_var}</p>
 
 
-### Parsing variables
-To parse some variables in the template set the extra parameter
+### Parsing global variables
+Optionally parse global variables inside the pre_embed template
 
-	{exp:pre_embed parse="inward" extra="segment|globals|member"}
+	{exp:pre_embed parse="inward" globals="member"}
 
-**segment**  
-will replace {segment_n} variables in the pre-embedded template
-
-**globals**  
+**globals="all"**  
 Parse all globals (overhead, avoid, rarely needed).
 
-**member**
+**globals="member"**
 Parse 'logged_in_member_id', 'logged_in_group_id', 'logged_in_member_group', 'logged_in_username', 'logged_in_screen_name'
 
 

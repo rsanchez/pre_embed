@@ -19,14 +19,16 @@ class Pre_embed
 		
 		$this->return_data = $this->EE->TMPL->tagdata;
 
-		$this->extra = explode('|',$this->EE->TMPL->fetch_param('extra'));
+		$this->globals = $this->EE->TMPL->fetch_param('globals');
 		
-		if (preg_match_all('/'.LD.'pre_embed\s*=\s*([\042\047]?)([^\\1]*?)\\1(.*?)'.RD.'/s', $this->return_data, $matches))
+		if (preg_match_all('/{(pre_embed=([\'"]({|\s+{|.+})|[^{])+)}$/m', $this->return_data, $matches))
 		{
 			foreach ($matches[0] as $i => $full_match)
 			{
+				$params = $this->EE->functions->assign_parameters($matches[1][$i]);
+				
 				//template_group/template, embed vars
-				$embed = $this->embed($matches[2][$i], $this->EE->functions->assign_parameters($matches[3][$i]));
+				$embed = $this->embed(array_shift($params), $params);
 				
 				$this->return_data = str_replace(
 					$full_match,
@@ -85,8 +87,13 @@ class Pre_embed
 			}
 		}
 		
-		// strip comments
+		// strip comments and parse segment_x vars
 		$embed = preg_replace("/\{!--.*?--\}/s", '', $embed);
+
+		for ($i = 1; $i < 10; $i++)
+		{
+			$embed = str_replace(LD.'segment_'.$i.RD, $this->EE->uri->segment($i), $embed);
+		}
 
 		// swap config global vars
 		foreach ($this->EE->config->_global_vars as $key => $value)
@@ -94,23 +101,14 @@ class Pre_embed
 			$embed = $this->EE->TMPL->swap_var_single($key, $value, $embed);
 		}
 		
-		// extra parsing: segments
-		if(in_array('segment', $this->extra))
-		{
-			for ($i = 1; $i < 10; $i++)
-			{
-				$embed = str_replace(LD.'segment_'.$i.RD, $this->EE->uri->segment($i), $embed);
-			}
-		}
-
-		// extra parsing: globals (expensive)
-		if(in_array('globals', $this->extra))
+		// parse late globals (expensive)
+		if ($this->globals=='all')
 		{
 			$embed = $this->EE->TMPL->parse_globals($embed);
 		}
-		else // extra parsing: only member vars instead of globals
-		if(in_array('member', $this->extra)) 
+		elseif ($this->globals=='member')
 		{
+			// member vars
 			foreach(array(
 					'member_id', 'group_id', 'member_group', 'username', 'screen_name',
 					//'group_title', 'group_description', 

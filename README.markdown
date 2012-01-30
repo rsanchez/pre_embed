@@ -28,5 +28,18 @@ Embed a template before other tag parsing, so you can re-use templates more easi
 	{!--embed--}
 	<p>{title}: {your_custom_field} {embed:my_var}</p>
 
+
+### Parsing global variables
+Optionally parse global variables inside the pre_embed template
+
+	{exp:pre_embed parse="inward" globals="member"}
+
+**globals="all"**  
+Parse all globals (overhead, avoid, rarely needed).
+
+**globals="member"**
+Parse 'logged_in_member_id', 'logged_in_group_id', 'logged_in_member_group', 'logged_in_username', 'logged_in_screen_name'
+
+
 ### Tada!
 Now you can re-use the same embed more easily.

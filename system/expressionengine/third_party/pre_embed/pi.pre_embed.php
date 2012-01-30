@@ -18,13 +18,15 @@ class Pre_embed
 		$this->EE =& get_instance();
 		
 		$this->return_data = $this->EE->TMPL->tagdata;
+
+		$this->globals = $this->EE->TMPL->fetch_param('globals');
 		
-		if (preg_match_all('/'.LD.'pre_embed\s*=\s*([\042\047]?)([^\\1]*?)\\1(.*)'.RD.'/', $this->return_data, $matches))
+		if (preg_match_all('/'.LD.'(pre_embed\s*=\s*(\042|\047)([^\2]*?)\2)((\s*\w+\s*=\s*(\042|\047)[^\6]*?\6)+)?\s*'.RD.'/ms', $this->return_data, $matches))
 		{
 			foreach ($matches[0] as $i => $full_match)
 			{
 				//template_group/template, embed vars
-				$embed = $this->embed($matches[2][$i], $this->EE->functions->assign_parameters($matches[3][$i]));
+				$embed = $this->embed($matches[3][$i], $this->EE->functions->assign_parameters($matches[4][$i]));
 				
 				$this->return_data = str_replace(
 					$full_match,
@@ -83,11 +85,46 @@ class Pre_embed
 			}
 		}
 		
+		// strip comments and parse segment_x vars
+		$embed = preg_replace("/\{!--.*?--\}/s", '', $embed);
+
+		for ($i = 1; $i < 10; $i++)
+		{
+			$embed = str_replace(LD.'segment_'.$i.RD, $this->EE->uri->segment($i), $embed);
+		}
+
+		// swap config global vars
 		foreach ($this->EE->config->_global_vars as $key => $value)
 		{
 			$embed = $this->EE->TMPL->swap_var_single($key, $value, $embed);
 		}
 		
+		// parse late globals (expensive)
+		if ($this->globals=='all')
+		{
+			$embed = $this->EE->TMPL->parse_globals($embed);
+		}
+		elseif ($this->globals=='member')
+		{
+			// member vars
+			foreach(array(
+					'member_id', 'group_id', 'member_group', 'username', 'screen_name',
+					//'group_title', 'group_description', 
+					//'email', 'ip_address', 'location', 'total_entries', 
+					//'total_comments', 'private_messages', 'total_forum_posts', 
+					//'total_forum_topics', 'total_forum_replies'
+				) as $val)
+			{
+				if (isset($this->EE->session->userdata[$val]) AND ($val == 'group_description' OR strval($this->EE->session->userdata[$val]) != ''))
+				{
+					//$embed = str_replace(LD.$val.RD, $this->EE->session->userdata[$val], $embed);				 
+					//$embed = str_replace('{out_'.$val.'}', $this->EE->session->userdata[$val], $embed);
+					//$embed = str_replace('{global->'.$val.'}', $this->EE->session->userdata[$val], $embed);
+					$embed = str_replace('{logged_in_'.$val.'}', $this->EE->session->userdata[$val], $embed);
+				}
+			}	
+		}
+
 		return $embed;
 	}
 	
@@ -95,6 +132,9 @@ class Pre_embed
 	{
 		ob_start(); 
 ?>
+
+## See the included readme
+
 ### The old way.
 	{!--template--}
 	{exp:channel:entries channel="your_channel"}

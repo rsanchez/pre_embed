@@ -21,14 +21,12 @@ class Pre_embed
 
 		$this->globals = $this->EE->TMPL->fetch_param('globals');
 		
-		if (preg_match_all('/{(pre_embed=([\'"]({|\s+{|.+})|[^{])+)}$/m', $this->return_data, $matches))
+		if (preg_match_all('/'.LD.'(pre_embed\s*=\s*(\042|\047)([^\2]*?)\2)((\s*\w+\s*=\s*(\042|\047)[^\6]*?\6)+)?\s*'.RD.'/ms', $this->return_data, $matches))
 		{
 			foreach ($matches[0] as $i => $full_match)
 			{
-				$params = $this->EE->functions->assign_parameters($matches[1][$i]);
-				
 				//template_group/template, embed vars
-				$embed = $this->embed(array_shift($params), $params);
+				$embed = $this->embed($matches[3][$i], $this->EE->functions->assign_parameters($matches[4][$i]));
 				
 				$this->return_data = str_replace(
 					$full_match,

@@ -43,9 +43,9 @@ class Pre_embed
 		
 		$this->EE->load->library('pre_embedder');
 		
-		$this->EE->pre_embedder->globals = $this->EE->TMPL->fetch_param('globals');
+		$this->EE->pre_embedder->parse_globals = $this->EE->TMPL->fetch_param('globals');
 		
-		$this->return_data = $this->EE->pre_embedder->process($this->EE->TMPL->tagdata);
+		$this->return_data = $this->EE->pre_embedder->parse($this->EE->TMPL->tagdata);
 	}
 }
 /* End of file pi.pre_embed.php */ 

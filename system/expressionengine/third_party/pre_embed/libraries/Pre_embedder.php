@@ -2,28 +2,34 @@
 
 class Pre_embedder {
 	
-	public $globals = '';
+	public $parse_globals = '';
 	
 	public function __construct()
 	{
 		$this->EE =& get_instance();
 	}
 	
-	public function process($tagdata)
+	public function variables($tagdata)
 	{
+		$variables = array();
+		
 		if (preg_match_all('/'.LD.'(pre_embed\s*=\s*(\042|\047)([^\2]*?)\2)((\s*\w+\s*=\s*(\042|\047)[^\6]*?\6)+)?\s*'.RD.'/ms', $tagdata, $matches))
 		{
 			foreach ($matches[0] as $i => $full_match)
 			{
 				//template_group/template, embed vars
-				$embed = $this->embed($matches[3][$i], $this->EE->functions->assign_parameters($matches[4][$i]));
-				
-				$tagdata = str_replace(
-					$full_match,
-					$embed,
-					$tagdata
-				);
+				$variables[substr($full_match, 1, -1)] = $this->embed($matches[3][$i], $this->EE->functions->assign_parameters($matches[4][$i]));
 			}
+		}
+		
+		return $variables;
+	}
+	
+	public function parse($tagdata)
+	{
+		foreach ($this->variables($tagdata) as $key => $value)
+		{
+			$tagdata = str_replace(LD.$key.RD, $value, $tagdata);
 		}
 		
 		return $tagdata;
@@ -92,11 +98,11 @@ class Pre_embedder {
 		}
 		
 		// parse late globals (expensive)
-		if ($this->globals === 'all')
+		if ($this->parse_globals === 'all')
 		{
 			$embed = $this->EE->TMPL->parse_globals($embed);
 		}
-		elseif ($this->globals === 'member')
+		elseif ($this->parse_globals === 'member')
 		{
 			// member vars
 			foreach(array(

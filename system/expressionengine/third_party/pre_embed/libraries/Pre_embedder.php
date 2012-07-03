@@ -35,16 +35,10 @@ class Pre_embedder {
 		return $tagdata;
 	}
 	
-	protected function embed($template, $vars = FALSE)
+	protected function fetch_template($template_group, $template)
 	{
-		$template = explode('/', $template);
-		
-		$group_name = $template[0];
-		
-		$template_name = (isset($template[1])) ? $template[1] : 'index';
-		
 		$query = $this->EE->db->select('template_data, save_template_file, template_name, template_groups.group_name, template_type')
-				      ->where('group_name', $group_name)
+				      ->where('group_name', $template_group)
 				      ->where('template_name', $template_name)
 				      ->join('template_groups', 'template_groups.group_id = templates.group_id')
 				      ->get('templates');
@@ -54,7 +48,7 @@ class Pre_embedder {
 			return '';
 		}
 		
-		$embed = $query->row('template_data');
+		$output = $query->row('template_data');
 		
 		if ($this->EE->config->item('save_tmpl_files') === 'y' && $this->EE->config->item('tmpl_file_basepath')  && $query->row('save_template_file') === 'y')
 		{
@@ -66,9 +60,24 @@ class Pre_embedder {
 			
 			if (file_exists($basepath))
 			{
-				$embed = file_get_contents($basepath);
+				$output = file_get_contents($basepath);
 			}
 		}
+		
+		$query->free_result();
+		
+		return $output;
+	}
+	
+	protected function embed($template_string, $vars = FALSE)
+	{
+		$parts = explode('/', $template_string);
+		
+		$template_group = $parts[0];
+		
+		$template = (isset($parts[1])) ? $parts[1] : 'index';
+		
+		$embed = $this->fetch_template($template_group, $template);
 		
 		//for some reason this was throwing errors, when I had template debugging on
 		if (@preg_match_all('/'.LD.'embed:(\w+)'.RD.'/', $embed, $matches))

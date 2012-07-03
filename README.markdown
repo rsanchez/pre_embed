@@ -8,6 +8,7 @@ Embed a template before other tag parsing, so you can re-use templates more easi
 * Install the extension
 
 ## Usage
+
 ### The old way.
 	{!--template--}
 	{exp:channel:entries channel="your_channel"}
@@ -28,5 +29,18 @@ Embed a template before other tag parsing, so you can re-use templates more easi
 	<p>{title}: {your_custom_field} {embed:my_var}</p>
 
 
-### Tada!
-Now you can re-use the same embed more easily.
+## Updating from versions prior to 1.1.0
+
+Pre Embed is now an extension and no longer requires a "wrapping" tag pair. You must update your templates. For instance, you'd change this:
+
+	{exp:pre_embed parse="inward"}
+	{exp:channel:entries channel="your_channel"}
+		{pre_embed="site/something"}
+	{/exp:channel:entries}
+	{/exp:pre_embed}
+
+To the much simpler this:
+
+	{exp:channel:entries channel="your_channel"}
+		{pre_embed="site/something"}
+	{/exp:channel:entries}	

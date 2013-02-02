@@ -95,15 +95,15 @@ class Pre_embedder {
 		// strip comments and parse segment_x vars
 		$embed = preg_replace("/\{!--.*?--\}/s", '', $embed);
 
-		for ($i = 1; $i < 10; $i++)
-		{
-			$embed = str_replace(LD.'segment_'.$i.RD, $this->EE->uri->segment($i), $embed);
-		}
-
 		// swap config global vars
 		foreach ($this->EE->config->_global_vars as $key => $value)
 		{
 			$embed = $this->EE->TMPL->swap_var_single($key, $value, $embed);
+		}
+
+		for ($i = 1; $i < 10; $i++)
+		{
+			$embed = str_replace(LD.'segment_'.$i.RD, $this->EE->uri->segment($i), $embed);
 		}
 		
 		// parse late globals (expensive)
